@@ -1,0 +1,1817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flowers For You</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    width: 100%;
+    min-height: 100vh;
+    overflow: hidden;
+    font-family: Georgia, "Times New Roman", serif;
+    background: #050509;
+    color: white;
+}
+
+/* =========================
+   SHOOTING SCREEN
+========================= */
+
+#shootingScreen {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+
+    background:
+        radial-gradient(
+            circle at 15% 20%,
+            rgba(255, 190, 220, .30),
+            transparent 20%
+        ),
+        radial-gradient(
+            circle at 85% 75%,
+            rgba(255, 110, 170, .22),
+            transparent 25%
+        ),
+        radial-gradient(
+            circle at 70% 15%,
+            rgba(255, 220, 235, .18),
+            transparent 15%
+        ),
+        linear-gradient(
+            135deg,
+            #3b1029 0%,
+            #701c48 32%,
+            #a52d61 62%,
+            #4a1238 100%
+        );
+
+    transition:
+        opacity 1s ease,
+        visibility 1s ease;
+}
+
+#shootingScreen.hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+#shootingScreen::before {
+    content: "";
+
+    position: absolute;
+
+    width: 420px;
+    height: 420px;
+
+    left: -180px;
+    top: -180px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(255, 190, 220, .28),
+            rgba(255, 100, 160, .08) 45%,
+            transparent 70%
+        );
+
+    filter: blur(10px);
+
+    z-index: 1;
+}
+
+#shootingScreen::after {
+    content: "";
+
+    position: absolute;
+
+    width: 650px;
+    height: 650px;
+
+    right: -330px;
+    bottom: -350px;
+
+    border-radius: 50%;
+
+    border: 1px solid rgba(255, 220, 235, .18);
+
+    box-shadow:
+        0 0 0 35px rgba(255, 190, 220, .035),
+        0 0 0 70px rgba(255, 190, 220, .025),
+        0 0 0 105px rgba(255, 190, 220, .018);
+
+    z-index: 1;
+}
+
+/* =========================
+   SHOOTING BUTTON
+========================= */
+
+#shootButton {
+    position: absolute;
+    inset: 0;
+
+    border: none;
+    background: transparent;
+
+    cursor: pointer;
+
+    z-index: 20;
+}
+
+/* =========================
+   CUPID
+========================= */
+
+.cupid-container {
+    position: absolute;
+
+    left: 18%;
+    top: 50%;
+
+    transform:
+        translateY(-50%)
+        translateX(-120px)
+        scale(.86);
+
+    transform-origin: center;
+
+    z-index: 10;
+
+    pointer-events: none;
+}
+
+.cupid-animation {
+    position: absolute;
+
+    width: 310px;
+    height: 310px;
+
+    object-fit: contain;
+
+    left: 0;
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    opacity: 0;
+
+    z-index: 5;
+}
+
+.cupid-static {
+    width: 310px;
+    height: 310px;
+
+    object-fit: contain;
+
+    display: block;
+
+    transition: opacity .25s ease;
+}
+
+.cupid-static.hidden {
+    opacity: 0;
+}
+
+/* =========================
+   ARROW TRAIL
+========================= */
+
+.arrow-flight {
+    position: absolute;
+
+    left: 20%;
+    top: 50%;
+
+    width: 68%;
+    height: 5px;
+
+    transform: translateY(-50%);
+
+    pointer-events: none;
+
+    opacity: 0;
+
+    z-index: 8;
+}
+
+.arrow-flight.active {
+    animation:
+        arrowFly 1.15s cubic-bezier(.2,.7,.2,1)
+        forwards;
+}
+
+.arrow-glow {
+    position: absolute;
+
+    left: 0;
+    top: 50%;
+
+    width: 100%;
+    height: 5px;
+
+    transform: translateY(-50%);
+
+    border-radius: 100px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255,150,190,.35),
+            rgba(255,210,230,.95)
+        );
+
+    box-shadow:
+        0 0 8px rgba(255,160,200,.8),
+        0 0 20px rgba(255,80,140,.6),
+        0 0 40px rgba(255,60,130,.35);
+}
+
+.arrow-head {
+    position: absolute;
+
+    right: -7px;
+    top: 50%;
+
+    width: 24px;
+    height: 24px;
+
+    transform:
+        translateY(-50%)
+        rotate(45deg);
+
+    border-top: 4px solid white;
+    border-right: 4px solid white;
+
+    filter:
+        drop-shadow(0 0 5px #fff)
+        drop-shadow(0 0 15px #ff7da8);
+}
+
+@keyframes arrowFly {
+
+    0% {
+        width: 0%;
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 1;
+    }
+
+    100% {
+        width: 68%;
+        opacity: 1;
+    }
+}
+
+/* =========================
+   LABELS
+========================= */
+
+.arrow-label,
+.heart-label {
+    position: absolute;
+
+    top: calc(50% + 100px);
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: 14px;
+
+    letter-spacing: 4px;
+
+    color: rgba(255,225,235,.82);
+
+    text-shadow:
+        0 0 8px rgba(255,160,195,.7),
+        0 0 18px rgba(255,100,160,.35);
+
+    z-index: 15;
+
+    pointer-events: none;
+}
+
+.arrow-label {
+    left: 24%;
+}
+
+.heart-label {
+    right: calc(7% + 35px);
+}
+
+/* =========================
+   SMOOTH RED HEART
+========================= */
+
+.heart-target {
+    position: absolute;
+
+    right: 7%;
+    top: 50%;
+
+    width: 115px;
+    height: 105px;
+
+    transform:
+        translateY(-50%);
+
+    z-index: 9;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    animation:
+        heartFloat 2.8s ease-in-out infinite;
+
+    filter:
+        drop-shadow(0 0 8px rgba(255,80,90,.95))
+        drop-shadow(0 0 22px rgba(255,30,50,.75))
+        drop-shadow(0 0 45px rgba(255,20,40,.45));
+}
+
+.heart-target svg {
+    width: 115px;
+    height: 105px;
+
+    display: block;
+
+    overflow: visible;
+}
+
+.heart-target svg path {
+    fill: #e60026;
+}
+
+@keyframes heartFloat {
+
+    0%, 100% {
+        transform:
+            translateY(-50%)
+            scale(1);
+
+        filter:
+            drop-shadow(0 0 8px rgba(255,80,90,.95))
+            drop-shadow(0 0 22px rgba(255,30,50,.75))
+            drop-shadow(0 0 45px rgba(255,20,40,.45));
+    }
+
+    50% {
+        transform:
+            translateY(-50%)
+            scale(1.045);
+
+        filter:
+            drop-shadow(0 0 10px rgba(255,100,110,1))
+            drop-shadow(0 0 28px rgba(255,30,50,.85))
+            drop-shadow(0 0 55px rgba(255,20,40,.5));
+    }
+}
+
+.heart-target.hit {
+    animation:
+        heartHit .85s cubic-bezier(.2,.8,.2,1)
+        forwards;
+}
+
+@keyframes heartHit {
+
+    0% {
+        transform:
+            translateY(-50%)
+            scale(1);
+    }
+
+    20% {
+        transform:
+            translateY(-50%)
+            scale(1.18);
+    }
+
+    38% {
+        transform:
+            translateY(-50%)
+            scale(.92);
+    }
+
+    58% {
+        transform:
+            translateY(-50%)
+            scale(1.10);
+    }
+
+    78% {
+        transform:
+            translateY(-50%)
+            scale(.98);
+    }
+
+    100% {
+        transform:
+            translateY(-50%)
+            scale(1);
+    }
+}
+
+/* =========================
+   IMPACT PARTICLES
+========================= */
+
+.particle {
+    position: absolute;
+
+    left: calc(93% - 5px);
+    top: 50%;
+
+    width: 7px;
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: #ffd4e3;
+
+    box-shadow:
+        0 0 10px #ff7da8;
+
+    opacity: 0;
+
+    z-index: 12;
+}
+
+.particle.active {
+    animation:
+        particleBurst .8s ease-out
+        forwards;
+}
+
+@keyframes particleBurst {
+
+    0% {
+        transform:
+            translate(0,0)
+            scale(1);
+
+        opacity: 1;
+    }
+
+    100% {
+        transform:
+            translate(
+                calc(var(--x) * 1px),
+                calc(var(--y) * 1px)
+            )
+            scale(.1);
+
+        opacity: 0;
+    }
+}
+
+/* =========================
+   FLOWERS SCREEN
+========================= */
+
+#flowersScreen {
+    position: fixed;
+    inset: 0;
+
+    background:
+        radial-gradient(
+            circle at 18% 18%,
+            rgba(255,205,225,.30),
+            transparent 22%
+        ),
+        radial-gradient(
+            circle at 85% 80%,
+            rgba(255,105,165,.24),
+            transparent 28%
+        ),
+        radial-gradient(
+            circle at 75% 20%,
+            rgba(255,220,235,.18),
+            transparent 18%
+        ),
+        linear-gradient(
+            135deg,
+            #4a1235,
+            #8e2857 42%,
+            #c13f72 72%,
+            #4d1439
+        );
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+    align-items: center;
+
+    opacity: 0;
+    visibility: hidden;
+
+    transition:
+        opacity 1s ease,
+        visibility 1s ease;
+
+    overflow: hidden;
+}
+
+#flowersScreen::before {
+    content: "";
+
+    position: absolute;
+
+    width: 600px;
+    height: 600px;
+
+    left: -300px;
+    bottom: -300px;
+
+    border-radius: 50%;
+
+    border: 1px solid rgba(255,220,235,.18);
+
+    box-shadow:
+        0 0 0 35px rgba(255,200,225,.035),
+        0 0 0 70px rgba(255,200,225,.025),
+        0 0 0 105px rgba(255,200,225,.018);
+
+    pointer-events: none;
+}
+
+#flowersScreen::after {
+    content: "";
+
+    position: absolute;
+
+    width: 350px;
+    height: 350px;
+
+    right: -150px;
+    top: -150px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(255,210,230,.25),
+            transparent 70%
+        );
+
+    filter: blur(8px);
+
+    pointer-events: none;
+}
+
+#flowersScreen.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.flowers-title {
+    font-size:
+        clamp(28px, 6vw, 52px);
+
+    margin-bottom: 20px;
+
+    letter-spacing: 2px;
+
+    text-shadow:
+        0 0 10px rgba(255,220,235,.9),
+        0 0 30px rgba(255,100,160,.5);
+
+    z-index: 5;
+}
+
+.flower-gif {
+    width: min(75vw, 400px);
+
+    max-height: 55vh;
+
+    object-fit: contain;
+
+    cursor: pointer;
+
+    filter:
+        drop-shadow(
+            0 0 15px rgba(255,190,215,.35)
+        );
+
+    transition:
+        transform .4s ease;
+
+    z-index: 5;
+}
+
+.flower-gif:hover {
+    transform: scale(1.03);
+}
+
+.flower-hint {
+    margin-top: 15px;
+
+    font-size: 15px;
+
+    opacity: .7;
+
+    animation:
+        hintPulse 1.8s ease-in-out infinite;
+
+    z-index: 5;
+}
+
+@keyframes hintPulse {
+
+    0%,100% {
+        opacity: .45;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+/* =========================
+   ENVELOPE
+========================= */
+
+.envelope {
+    position: relative;
+
+    width: 220px;
+    height: 145px;
+
+    margin-top: 25px;
+
+    cursor: pointer;
+
+    opacity: 0;
+
+    transform:
+        translateY(30px)
+        scale(.8);
+
+    pointer-events: none;
+
+    transition:
+        opacity .7s ease,
+        transform .7s cubic-bezier(.2,.8,.2,1);
+
+    z-index: 6;
+}
+
+.envelope.show {
+    opacity: 1;
+
+    transform:
+        translateY(0)
+        scale(1);
+
+    pointer-events: auto;
+}
+
+.envelope-body {
+    position: absolute;
+    inset: 0;
+
+    background:
+        linear-gradient(
+            145deg,
+            #f6c7d7,
+            #e99ab8
+        );
+
+    border-radius: 5px;
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,.4),
+        0 0 25px rgba(255,140,180,.2);
+}
+
+.envelope-flap {
+    position: absolute;
+
+    left: 0;
+    top: 0;
+
+    width: 0;
+    height: 0;
+
+    border-left:
+        110px solid transparent;
+
+    border-right:
+        110px solid transparent;
+
+    border-top:
+        80px solid #f8d1df;
+
+    z-index: 3;
+
+    filter: brightness(.97);
+}
+
+.envelope-heart {
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    transform:
+        translate(-50%,-50%);
+
+    font-size: 32px;
+
+    z-index: 5;
+
+    filter:
+        drop-shadow(
+            0 0 7px rgba(255,50,100,.6)
+        );
+}
+
+/* =========================
+   MESSAGE MODAL
+========================= */
+
+.message-overlay {
+    position: fixed;
+    inset: 0;
+
+    background: rgba(0,0,0,.7);
+
+    backdrop-filter: blur(8px);
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    padding: 20px;
+
+    opacity: 0;
+    visibility: hidden;
+
+    transition:
+        opacity .5s ease,
+        visibility .5s ease;
+
+    z-index: 100;
+}
+
+.message-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.message-box {
+    position: relative;
+
+    width: min(92vw, 600px);
+
+    max-height: 85vh;
+
+    overflow-y: auto;
+
+    padding: 35px 30px;
+
+    border-radius: 18px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255,230,238,.98),
+            rgba(247,194,211,.98)
+        );
+
+    color: #542637;
+
+    box-shadow:
+        0 20px 80px rgba(0,0,0,.55),
+        0 0 40px rgba(255,120,170,.25);
+
+    transform:
+        scale(.8)
+        translateY(30px);
+
+    transition:
+        transform .6s cubic-bezier(.2,.8,.2,1);
+}
+
+.message-overlay.show .message-box {
+    transform:
+        scale(1)
+        translateY(0);
+}
+
+.message-box h2 {
+    text-align: center;
+
+    margin-bottom: 22px;
+
+    font-size: 28px;
+
+    color: #9c315b;
+}
+
+.message-box p {
+    font-size: 17px;
+
+    line-height: 1.8;
+
+    white-space: pre-line;
+}
+
+/* =========================
+   I LOVE YOU GIF
+========================= */
+
+.message-gif {
+    display: block;
+
+    width: min(55%, 220px);
+
+    max-width: 220px;
+
+    height: auto;
+
+    margin: 22px auto 0;
+
+    object-fit: contain;
+
+    border: none;
+
+    filter:
+        drop-shadow(
+            0 4px 8px rgba(0,0,0,.12)
+        );
+}
+
+/* =========================
+   FAVORITE SONG CONTROLS
+========================= */
+
+.music-section {
+    width: min(100%, 430px);
+
+    margin: 25px auto 5px;
+
+    padding: 20px 18px;
+
+    border-radius: 16px;
+
+    background:
+        rgba(255,255,255,.25);
+
+    border:
+        1px solid rgba(255,255,255,.45);
+
+    box-shadow:
+        0 8px 25px rgba(130,40,75,.12);
+
+    text-align: center;
+}
+
+.music-title {
+    margin-bottom: 16px;
+
+    font-size: 18px;
+
+    letter-spacing: 1.5px;
+
+    color: #8f3156;
+
+    text-shadow:
+        0 1px 2px rgba(255,255,255,.5);
+}
+
+.song-control {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 10px;
+
+    margin-top: 10px;
+
+    padding: 10px 12px;
+
+    border-radius: 12px;
+
+    background:
+        rgba(255,255,255,.30);
+}
+
+.song-name {
+    flex: 1;
+
+    text-align: left;
+
+    font-size: 14px;
+
+    color: #683047;
+
+    line-height: 1.3;
+}
+
+.song-buttons {
+    display: flex;
+
+    gap: 7px;
+}
+
+.music-button {
+    border: none;
+
+    border-radius: 20px;
+
+    padding: 7px 12px;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: 12px;
+
+    color: white;
+
+    background:
+        linear-gradient(
+            135deg,
+            #b83d6b,
+            #e15b88
+        );
+
+    box-shadow:
+        0 3px 9px rgba(150,40,85,.25);
+
+    cursor: pointer;
+
+    transition:
+        transform .2s ease,
+        filter .2s ease;
+}
+
+.music-button:hover {
+    transform: translateY(-1px);
+
+    filter: brightness(1.08);
+}
+
+.music-button:active {
+    transform: scale(.96);
+}
+
+.music-status {
+    margin-top: 12px;
+
+    min-height: 18px;
+
+    font-size: 12px;
+
+    color: #8b4b65;
+
+    opacity: .8;
+}
+
+/* =========================
+   CLOSE MESSAGE
+========================= */
+
+.close-message {
+    position: absolute;
+
+    right: 15px;
+    top: 12px;
+
+    border: none;
+
+    background: transparent;
+
+    font-size: 28px;
+
+    color: #8d3d59;
+
+    cursor: pointer;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 700px) {
+
+    .cupid-container {
+        left: 7%;
+
+        transform:
+            translateY(-50%)
+            translateX(-75px)
+            scale(.72);
+    }
+
+    .cupid-static,
+    .cupid-animation {
+        width: 280px;
+        height: 280px;
+    }
+
+    .heart-target {
+        right: 6%;
+
+        width: 78px;
+        height: 72px;
+    }
+
+    .heart-target svg {
+        width: 78px;
+        height: 72px;
+    }
+
+    .arrow-flight {
+        left: 18%;
+        width: 72%;
+    }
+
+    .arrow-label,
+    .heart-label {
+        top: calc(50% + 82px);
+
+        font-size: 11px;
+
+        letter-spacing: 3px;
+    }
+
+    .arrow-label {
+        left: 21%;
+    }
+
+    .heart-label {
+        right: calc(6% + 22px);
+    }
+
+    .message-box {
+        padding: 30px 22px;
+    }
+
+    .message-box p {
+        font-size: 16px;
+
+        line-height: 1.7;
+    }
+
+    .message-gif {
+        width: min(60%, 190px);
+    }
+
+    .music-section {
+        padding: 16px 12px;
+    }
+
+    .song-control {
+        flex-direction: column;
+
+        align-items: stretch;
+    }
+
+    .song-name {
+        text-align: center;
+    }
+
+    .song-buttons {
+        justify-content: center;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- =====================================
+     AUDIO
+===================================== -->
+
+<audio
+    id="songOne"
+    src="Libu Libong Buwan Uuwian.mp3"
+    preload="auto"
+></audio>
+
+<audio
+    id="songTwo"
+    src="A Little Bit.mp3"
+    preload="auto"
+></audio>
+
+
+<!-- =====================================
+     SHOOTING SCREEN
+===================================== -->
+
+<section id="shootingScreen">
+
+    <div class="cupid-container">
+
+        <img
+            id="cupidStatic"
+            class="cupid-static"
+            src="cupid_arrow_still-1.png"
+            alt="Cupid with bow and arrow"
+        >
+
+        <img
+            id="cupidAnimation"
+            class="cupid-animation"
+            src=""
+            alt=""
+        >
+
+    </div>
+
+
+    <div
+        id="arrowFlight"
+        class="arrow-flight"
+    >
+
+        <div class="arrow-glow"></div>
+
+        <div class="arrow-head"></div>
+
+    </div>
+
+
+    <!-- Smooth red heart -->
+
+    <div
+        id="heartTarget"
+        class="heart-target"
+    >
+
+        <svg
+            viewBox="0 0 100 92"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-label="Heart"
+        >
+
+            <path
+                d="M50 88
+                   C46 84 8 59 4 32
+                   C1 13 13 2 28 2
+                   C38 2 46 8 50 17
+                   C54 8 62 2 72 2
+                   C87 2 99 13 96 32
+                   C92 59 54 84 50 88 Z"
+            />
+
+        </svg>
+
+    </div>
+
+
+    <div class="arrow-label">
+        YOU
+    </div>
+
+    <div class="heart-label">
+        ME
+    </div>
+
+
+    <div
+        class="particle"
+        style="--x:-90; --y:-65;"
+    ></div>
+
+    <div
+        class="particle"
+        style="--x:-50; --y:70;"
+    ></div>
+
+    <div
+        class="particle"
+        style="--x:10; --y:-95;"
+    ></div>
+
+    <div
+        class="particle"
+        style="--x:70; --y:-55;"
+    ></div>
+
+    <div
+        class="particle"
+        style="--x:90; --y:45;"
+    ></div>
+
+    <div
+        class="particle"
+        style="--x:30; --y:95;"
+    ></div>
+
+    <div
+        class="particle"
+        style="--x:-70; --y:30;"
+    ></div>
+
+
+    <button
+        id="shootButton"
+        aria-label="Shoot the arrow"
+    ></button>
+
+</section>
+
+
+<!-- =====================================
+     FLOWERS SCREEN
+===================================== -->
+
+<section id="flowersScreen">
+
+    <h1 class="flowers-title">
+        Flowers For You
+    </h1>
+
+
+    <img
+        id="flowerGif"
+        class="flower-gif"
+        src="flower.gif"
+        alt="Flowers"
+    >
+
+
+    <div
+        id="flowerHint"
+        class="flower-hint"
+    >
+        Tap the flowers ♡
+    </div>
+
+
+    <div
+        id="envelope"
+        class="envelope"
+    >
+
+        <div class="envelope-body"></div>
+
+        <div class="envelope-flap"></div>
+
+        <div class="envelope-heart">
+            ♥
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================
+     MESSAGE
+===================================== -->
+
+<div
+    id="messageOverlay"
+    class="message-overlay"
+>
+
+    <div class="message-box">
+
+        <button
+            id="closeMessage"
+            class="close-message"
+            aria-label="Close"
+        >
+            ×
+        </button>
+
+
+        <h2>
+            To my Beloved Sarah
+        </h2>
+
+
+        <p>
+Hi po. I just wanted to say that I really like you, and I genuinely enjoy talking to you. You’re honestly one of those people who can easily make my day better just by being around.
+
+You’re beautiful, kind, and sweet, and there’s something about you that inspires me to become the best version of myself. I appreciate every little thing about you, and the more I get to know you, the more I find myself wanting to know even more.
+
+My day honestly doesn’t feel complete when I don’t get to see you. And every time I see you, my heart starts beating so fast it feels like it’s trying to break the speed of light.
+
+I don’t know where this feeling will take me, but I just wanted you to know how much I genuinely like and appreciate you.-Jake
+        </p>
+
+
+        <!-- =====================================
+             I LOVE YOU GIF
+        ====================================== -->
+
+        <img
+            class="message-gif"
+            src="i love you.gif"
+            alt="I love you"
+        >
+
+
+        <!-- =====================================
+             YOUR FAVORITE SONG
+        ====================================== -->
+
+        <div class="music-section">
+
+            <div class="music-title">
+                🎵 Your Favorite Song
+            </div>
+
+
+            <!-- SONG 1 -->
+
+            <div class="song-control">
+
+                <div class="song-name">
+                    ♪ Libu Libong Buwan Uuwian
+                </div>
+
+                <div class="song-buttons">
+
+                    <button
+                        id="songOnePlay"
+                        class="music-button"
+                    >
+                        ▶ Play
+                    </button>
+
+                    <button
+                        id="songOneStop"
+                        class="music-button"
+                    >
+                        ⏹ Stop
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- SONG 2 -->
+
+            <div class="song-control">
+
+                <div class="song-name">
+                    ♪ A Little Bit
+                </div>
+
+                <div class="song-buttons">
+
+                    <button
+                        id="songTwoPlay"
+                        class="music-button"
+                    >
+                        ▶ Play
+                    </button>
+
+                    <button
+                        id="songTwoStop"
+                        class="music-button"
+                    >
+                        ⏹ Stop
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="musicStatus"
+                class="music-status"
+            >
+                Libu Libong Buwan Uuwian is playing ♡
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+/* =====================================
+   ELEMENTS
+===================================== */
+
+const shootingScreen =
+    document.getElementById("shootingScreen");
+
+const flowersScreen =
+    document.getElementById("flowersScreen");
+
+const shootButton =
+    document.getElementById("shootButton");
+
+const cupidStatic =
+    document.getElementById("cupidStatic");
+
+const cupidAnimation =
+    document.getElementById("cupidAnimation");
+
+const arrowFlight =
+    document.getElementById("arrowFlight");
+
+const heartTarget =
+    document.getElementById("heartTarget");
+
+const particles =
+    document.querySelectorAll(".particle");
+
+const flowerGif =
+    document.getElementById("flowerGif");
+
+const flowerHint =
+    document.getElementById("flowerHint");
+
+const envelope =
+    document.getElementById("envelope");
+
+const messageOverlay =
+    document.getElementById("messageOverlay");
+
+const closeMessage =
+    document.getElementById("closeMessage");
+
+
+/* =====================================
+   MUSIC ELEMENTS
+===================================== */
+
+const songOne =
+    document.getElementById("songOne");
+
+const songTwo =
+    document.getElementById("songTwo");
+
+const songOnePlay =
+    document.getElementById("songOnePlay");
+
+const songOneStop =
+    document.getElementById("songOneStop");
+
+const songTwoPlay =
+    document.getElementById("songTwoPlay");
+
+const songTwoStop =
+    document.getElementById("songTwoStop");
+
+const musicStatus =
+    document.getElementById("musicStatus");
+
+
+/* =====================================
+   SHOOTING STATE
+===================================== */
+
+let hasShot = false;
+
+
+/* =====================================
+   MUSIC FUNCTIONS
+===================================== */
+
+function stopSong(song) {
+
+    song.pause();
+
+    song.currentTime = 0;
+
+}
+
+
+/* Play Song 1 */
+
+function playSongOne() {
+
+    /*
+       Make sure Song 2 is completely stopped.
+    */
+
+    stopSong(songTwo);
+
+
+    /*
+       Start Song 1.
+    */
+
+    songOne.play()
+        .then(() => {
+
+            musicStatus.textContent =
+                "Libu Libong Buwan Uuwian is playing ♡";
+
+        })
+        .catch(() => {
+
+            musicStatus.textContent =
+                "Tap Play to start the song ♡";
+
+        });
+
+}
+
+
+/* Play Song 2 */
+
+function playSongTwo() {
+
+    /*
+       Stop Song 1 completely.
+    */
+
+    stopSong(songOne);
+
+
+    /*
+       Start Song 2.
+    */
+
+    songTwo.play()
+        .then(() => {
+
+            musicStatus.textContent =
+                "A Little Bit is playing ♡";
+
+        })
+        .catch(() => {
+
+            musicStatus.textContent =
+                "Tap Play to start the song ♡";
+
+        });
+
+}
+
+
+/* Stop Song 1 */
+
+songOneStop.addEventListener("click", () => {
+
+    stopSong(songOne);
+
+    musicStatus.textContent =
+        "Libu Libong Buwan Uuwian stopped ♡";
+
+});
+
+
+/* Stop Song 2 */
+
+songTwoStop.addEventListener("click", () => {
+
+    stopSong(songTwo);
+
+    musicStatus.textContent =
+        "A Little Bit stopped ♡";
+
+});
+
+
+/* Play Song 1 manually */
+
+songOnePlay.addEventListener("click", () => {
+
+    playSongOne();
+
+});
+
+
+/* Play Song 2 manually */
+
+songTwoPlay.addEventListener("click", () => {
+
+    playSongTwo();
+
+});
+
+
+/*
+   If Song 1 naturally finishes,
+   it simply stays stopped.
+*/
+
+songOne.addEventListener("ended", () => {
+
+    musicStatus.textContent =
+        "Libu Libong Buwan Uuwian finished ♡";
+
+});
+
+
+/*
+   If Song 2 naturally finishes,
+   it simply stays stopped.
+*/
+
+songTwo.addEventListener("ended", () => {
+
+    musicStatus.textContent =
+        "A Little Bit finished ♡";
+
+});
+
+
+/* =====================================
+   SHOOT
+===================================== */
+
+shootButton.addEventListener("click", () => {
+
+    if (hasShot) return;
+
+    hasShot = true;
+
+    shootButton.style.pointerEvents = "none";
+
+
+    /* =========================
+       START SONG 1
+    ========================= */
+
+    playSongOne();
+
+
+    /* =========================
+       HIDE STATIC CUPID
+    ========================= */
+
+    cupidStatic.classList.add("hidden");
+
+
+    /* =========================
+       LOAD SHOOTING GIF
+    ========================= */
+
+    cupidAnimation.src =
+        "cupid_arrow_transparent_once.gif";
+
+    cupidAnimation.style.opacity = "1";
+
+
+    /* =========================
+       GIF FINISHES
+    ========================= */
+
+    setTimeout(() => {
+
+        cupidAnimation.style.opacity = "0";
+
+        arrowFlight.classList.add("active");
+
+    }, 900);
+
+
+    /* =========================
+       HEART HIT
+    ========================= */
+
+    setTimeout(() => {
+
+        heartImpact();
+
+    }, 2050);
+
+});
+
+
+/* =====================================
+   HEART IMPACT
+===================================== */
+
+function heartImpact() {
+
+    heartTarget.classList.remove("hit");
+
+    void heartTarget.offsetWidth;
+
+    heartTarget.classList.add("hit");
+
+
+    particles.forEach((particle, index) => {
+
+        particle.classList.remove("active");
+
+        void particle.offsetWidth;
+
+        setTimeout(() => {
+
+            particle.classList.add("active");
+
+        }, index * 20);
+
+    });
+
+
+    setTimeout(() => {
+
+        showFlowers();
+
+    }, 850);
+
+}
+
+
+/* =====================================
+   SHOW FLOWERS
+===================================== */
+
+function showFlowers() {
+
+    /*
+       IMPORTANT:
+       Song 1 is NOT stopped here.
+       It continues playing.
+    */
+
+    shootingScreen.classList.add("hidden");
+
+    flowersScreen.classList.add("show");
+
+}
+
+
+/* =====================================
+   FLOWER TAP
+===================================== */
+
+flowerGif.addEventListener("click", () => {
+
+    flowerHint.style.opacity = "0";
+
+    envelope.classList.add("show");
+
+});
+
+
+/* =====================================
+   ENVELOPE TAP
+===================================== */
+
+envelope.addEventListener("click", () => {
+
+    messageOverlay.classList.add("show");
+
+});
+
+
+/* =====================================
+   CLOSE MESSAGE
+===================================== */
+
+closeMessage.addEventListener("click", () => {
+
+    messageOverlay.classList.remove("show");
+
+});
+
+
+/* =====================================
+   CLICK OUTSIDE MESSAGE
+===================================== */
+
+messageOverlay.addEventListener("click", (event) => {
+
+    if (event.target === messageOverlay) {
+
+        messageOverlay.classList.remove("show");
+
+    }
+
+});
+
+</script>
+
+</body>
+</html>
